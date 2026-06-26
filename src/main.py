@@ -4,6 +4,7 @@
 LOG_FILE = "logs/auth.log"
 REPORT_FILE = "alerts/report.txt"
 THRESHOLD = 5
+from portscan_detector import detect_port_scans
 
 failed_attempts = {}
 
@@ -74,3 +75,19 @@ else:
 
 print("\nReport generated:")
 print(REPORT_FILE)
+
+portscan_alerts = detect_port_scans()
+if portscan_alerts:
+
+    print("\n===== PORT SCAN ALERTS =====\n")
+
+    for alert in portscan_alerts:
+
+        print(f"IP Address: {alert['ip']}")
+        print(f"Ports Scanned: {alert['ports_scanned']}")
+        print(f"Threat: {alert['threat']}")
+        print("---------------------------")
+
+else:
+
+    print("\nNo port scans detected.")
