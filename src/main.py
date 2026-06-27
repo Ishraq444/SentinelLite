@@ -91,3 +91,5 @@ if portscan_alerts:
 else:
 
     print("\nNo port scans detected.")
+
+
