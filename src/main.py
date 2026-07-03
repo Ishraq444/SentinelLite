@@ -1,82 +1,31 @@
-# SentinelLite v0.1
-# Brute Force Detection Engine
-
-LOG_FILE = "logs/auth.log"
-REPORT_FILE = "alerts/report.txt"
-THRESHOLD = 5
+from bruteforce_detector import detect_bruteforce
 from portscan_detector import detect_port_scans
+from report_generator import generate_report
 
-failed_attempts = {}
 
-# Read logs
-with open(LOG_FILE, "r") as file:
-    logs = file.readlines()
+# Detect threats
+bruteforce_alerts = detect_bruteforce()
+portscan_alerts = detect_port_scans()
 
-# Parse logs and count failed logins
-for log in logs:
-    parts = log.split()
 
-    if len(parts) < 4:
-        continue
+# Display brute force alerts
+if bruteforce_alerts:
 
-    event = parts[2]
-    ip = parts[3]
+    print("\n===== BRUTE FORCE ALERTS =====\n")
 
-    if event == "LOGIN_FAILED":
+    for alert in bruteforce_alerts:
 
-        if ip not in failed_attempts:
-            failed_attempts[ip] = 0
-
-        failed_attempts[ip] += 1
-
-# Generate alerts
-alerts = []
-
-for ip, count in failed_attempts.items():
-
-    if count >= THRESHOLD:
-
-        alert = f"""
-================================
-SECURITY ALERT
-================================
-
-IP: {ip}
-
-Failed Attempts: {count}
-
-Threat:
-Possible Brute Force Attack
-"""
-
-        alerts.append(alert)
-
-# Save report
-with open(REPORT_FILE, "w") as report:
-
-    if alerts:
-        for alert in alerts:
-            report.write(alert)
-            report.write("\n")
-
-    else:
-        report.write("No threats detected.\n")
-
-# Print results
-if alerts:
-
-    print("\nThreats Detected:\n")
-
-    for alert in alerts:
-        print(alert)
+        print(f"IP Address: {alert['ip']}")
+        print(f"Failed Attempts: {alert['failed_attempts']}")
+        print(f"Threat: {alert['threat']}")
+        print("---------------------------")
 
 else:
-    print("No threats detected.")
 
-print("\nReport generated:")
-print(REPORT_FILE)
+    print("\nNo brute force attacks detected.")
 
-portscan_alerts = detect_port_scans()
+
+# Display port scan alerts
 if portscan_alerts:
 
     print("\n===== PORT SCAN ALERTS =====\n")
@@ -93,3 +42,5 @@ else:
     print("\nNo port scans detected.")
 
 
+# Generate security report
+generate_report(bruteforce_alerts, portscan_alerts)
